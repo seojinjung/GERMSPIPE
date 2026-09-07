@@ -1,0 +1,21 @@
+# do not commit large data files
+*.fasta
+*.fasta.gz
+*.fasta.fai
+*.fasta.gz.fai
+*.fastq
+*.fastq.gz
+*.bed
+*.bam
+*.bam.bai
+*.bcf
+*.vcf
+*.vcf.gz
+*.sam
+*.sam.gz
+
+# also don't commit personal notes
+wes_notes.txt
+
+# other things not to commit for various reasons
+pyproject.toml
