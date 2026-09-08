@@ -1,7 +1,7 @@
 # GERMSPIPE: GERMline Short variant discovery PIPEline
 A reproducible germline short variant discovery pipeline from Illumina whole-exome sequences, based on the Broad Institute's GATK Best Practices and nf-core/sarek workflows. Personal project.
 
-## This project is currently a work in progress! Please excuse discrepancies and incomplete sections while the project is underway. 
+**This project is currently a work in progress! Please excuse discrepancies and incomplete sections while the project is underway.**
 
 # Description
 One day, I decided I wanted to sequence my own genome and run my very own downstream analysis of said genome, because that's an aspiring bioinformatician's idea of a good time. Then I realized it would cost money and take time to get my genome sequenced, even if I just wanted an exome. *Then* I realized that coding is free, so I should learn how to build a variant discovery pipeline while I'm in this current period between not having money and having money. This is the result of that endeavor.

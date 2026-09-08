@@ -27,7 +27,7 @@ The authors also mentioned that they downloaded a Region BED file from Agilent, 
 
 I also need truth sets for each sample. GIAB provides benchmark VCF and BED files for all three samples on the GRCh38 reference genome. The latest version these files have in common is NISTv4.2.1, which is the same version the authors used in their study. I went ahead and took those as well. The filenames are kind of long, but it feels prudent to keep them that way this time.
 
-The table below lists the files I'm using for the benchmark portion of this project. 
+The table below lists the files I'm using for this project. 
 
 | Filename                                                | File format | Description                     | Where I got it | Location in directory*                                                                                                                  |
 |---------------------------------------------------------|-------------|---------------------------------|----------------|-----------------------------------------------------------------------------------------------------------------------------------------|
@@ -47,7 +47,7 @@ The table below lists the files I'm using for the benchmark portion of this proj
 | `HG003_GRCh38_1_22_v4.2.1_benchmark.vcf.gz`             | VCF         | Known variants (benchmark)      | [NIST GIAB](https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG003_NA24149_father/NISTv4.2.1/GRCh38/) | `data/truth_sets/`|      
 | `S04380110_Regions.bed`                                 | BED         | Exome target regions            | [UCSC GBDB](https://hgdownload.soe.ucsc.edu/gbdb/hg38/exomeProbesets/)                                                               | `data/samples/`   |
 
-* within `germspipe/`.
+\* within `germspipe/`.
 
 (By the way, if these file extensions are unfamiliar to you, check out [this Markdown](./file_formats.md) for my attempt at explaining the various file formats involved in the pipeline.)
 

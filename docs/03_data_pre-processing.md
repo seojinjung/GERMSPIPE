@@ -24,6 +24,14 @@ In the end, I decided to go with **fastp** because it's modern, user-friendly, a
 **Tool used in this step: fastp**
 
 ## Plot twist: Trimming might not be necessary?
-While researching trimming tools, I came across a paper from 2023 by Barbitoff and Predeus claiming that read trimming is not necessary for germline short variant calling; in fact, it might even be detrimental to the results. 
+While researching trimming tools, I came across a paper from 2023 by Barbitoff and Predeus claiming that read trimming is not necessary for germline short variant calling because it has, purportedly, little to no impact on the quality of the results. In fact, it might even be detrimental to some degree. The authors bring into question the true necessity of what has been a long-standing step in a standard NGS analysis protocol. Now, the experiment was run on both WGS and WES datasets, and for high-coverage WES data, some improvement *was* observed after trimming adapters. 
 
-## Read filtering: What's the cutoff?
+In any case, I figured this was somewhere I could do a little experimenting on my own. I'll run my pipeline in three different ways:
+
+1. With all pre-processing steps (adapter trimming, low-quality trimming, short read filtering)
+2. Without adapter trimming, but still doing the other pre-processings steps
+3. No pre-processing at all
+
+Then I'll compare the results from each run. Across three WES samples, that's already nine runs ... hoo, boy. We'll see how it goes.
+
+I also considered what parameters I should use for quality trimming and short read filtering. At this time, I'll go with fastp's defaults, if there are any. If not, I'll look into it a bit more.
