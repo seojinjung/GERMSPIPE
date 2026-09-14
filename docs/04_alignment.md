@@ -1,2 +1,42 @@
-# Mapping the reads to the reference
+# Alignment (and then QC-ing the alignment)
 File format: FASTQ --> BAM
+
+Now I've gotta find myself an aligning tool. It should come as no surprise that there isn't really one Best Aligner For Everything, so I need to start by defining my use case. The main thing for me is that I am mapping short reads (~125-150 bp) that were generated from whole-exome DNA sequencing and will be used for germline indel/SNV calling. (By the way, it was around this point that I realized that there is, in fact, a difference between single-nucleotide *variants* and single-nucleotide *polymorphisms*. The way I understand it, SNPs are SNVs that occur in at least 1% of a given population. I think the terms are still more or less used interchangeably, though.) Ideally, the aligner is also light enough to run on a laptop without anything exploding. My laptop has a total of 32 GB of RAM, half of which is in use at any given time, so I realistically have something like 16 GB to spare. A little more if I'm willing to close some of my many, many browser tabs, but I've been a tab hoarder since high school, so. You know.
+
+It should be noted at this point that GATK uses BWA-MEM (Vasimuddin *et. al.*, 2019) for alignment, as do many others. It is pretty much the industry standard for short-read DNA mapping. I therefore considered its successor,  **BWA-MEM2**, a contender for my pipeline, along with **minibwa** (Li and Homer, 2026) and **minimap2** (Li, 2018; Minimap2 - Fast Versatile DNA & RNA Sequence Aligner, accessed September 2026).
+
+**BWA-MEM2** is described in its [GitHub repo](https://github.com/bwa-mem2/bwa-mem2) as "the next version of the bwa-mem algorithm in bwa." For all intents and purposes, it appears to function identically to the original BWA-MEM but has enhanced performance, being ~1.3-3.1x faster than its predecessor. (The figures in the README suggest that speedup is closer to 1.40-2.07x for paired-end reads on one thread, depending on the dataset and instruction sets used. I'll use this range, since it's closer to my use case.) Since it's the standard aligner in bioinformatics, many pipelines and downstream tools are built around it, including benchmarks. All of this makes BWA-MEM2 a safe bet in almost all circumstances. The downside is that BWA-MEM2 uses a lot of memory (over 20 GB on GRCh38, according to [this GitHub issue](https://github.com/bwa-mem2/bwa-mem2/issues/267)); it is, to an extent, to be expected, but I'm hoping to find something lighter. 
+
+**minimap2** seems to have been designed largely for long-read sequences, but does have short-read alignment functionality and is described as a "general-purpose alignment program to map DNA or long mRNA against a large reference database" (Li, 2018). It uses a different seeding algorithm based on minimizers indexed into a hash table, which apparently sacrifices *some* accuracy for speed. Its RAM usage peaks at 14.5 GB for long spliced reads, and about the same for short-read WGS alignment to GRCh38 (Li, 2018; Li, 2026). When it comes to aligning short genomic reads, minimap2 clocks in at 3-4 times faster than BWA-MEM. Its mapping accuracy is comparable to BWA-MEM; for variant calling, minimap2 had more FN SNPs than BWA-MEM, but fewer FP SNPs, FN indels, and FP indels (Li, 2018).
+
+**minibwa**'s shiny newness grabbed my attention, I'll admit. Its seminal paper is still in preprint and was uploaded to arXiv in June of 2026, making it the youngest tool by a considerable margin. However, it makes up for what it lacks in maturity with an opportunity for me to test something brand new, which is pretty exciting. I might even be looking at the frontier of a new era, as minibwa is described in the paper as "the next iteration of BWA-MEM" (Li and Hower, 2026). It was developed because BWA-MEM had reached a point where it could no longer be meaningfully optimized without breaking the original design. What we have now with minibwa is basically a hybrid of BWA-MEM, minimap2, and ropebwt3: It uses a BWA-MEM-style FM-index and borrows BWA-MEM's seeding and pairing algorithms, while chaining and alignment methods are taken from minimap2. It's purported to be both fast (four times faster than BWA-MEM) and light (<20 GB memory over all datasets tested; probably more like <10 GB for WGS data, based on the figure). The mapping accuracy is somewhere between BWA-MEM and minimap2 when mapped to GRCh38 (BWA-MEM < minibwa < minimap2), and short-read variant calling results showed it was almost as good as BWA-MEM in one metric (FP indels) and better than BWA-MEM for the other three metrics (FN and FP SNPs, FN indels).
+
+> **An aside about alignment algorithms**
+>
+> Modern aligners often follow a three-phase heuristic formula for sequence alignment called seed-chain-extend (Shaw and Yu, 2023), or seed-chain-align (Li, 2018). The exact algorithms, etc. used for each step differ by tool, but the framework generally looks something like this: The aligner generates an index from the reference sequence, then subsets the query sequences as *seeds*. The seeds might be generated by looking for substrings that match the reference (MEM and SMEM used by BWA-MEM2 and minibwa), or they might be created as fixed-length substrings first and then matched (minimizer approach used by minimap2). The positions in the reference where the seeds are likely to match are taken as *anchors*. The anchors are *chained* together based on colinearity and a scoring metric that penalizes gaps and mismatches. The final step, *extension*, involves filling gaps between anchors within the chains and extending the ends of the chains to match the ends of the reads. The aligner also filters out bad alignments, calculates mapping quality, generates CIGAR strings, and puts together whatever else it needs to output the SAM. 
+> 
+> This summary is just an abstract overview of the process based on my understanding, but if you're interested in the mathematical details, check out this paper by Shaw and Yu from 2023: Proving sequence aligners can guarantee accuracy in almost O(m log n) time through an average-case analysis of the seed-chain-extend heuristic.
+
+Here is a table with comparing the three tools and some of their qualities. Mapping accuracies are presented as rankings (*i.e.*, a ranking of 1 would mean that tool is the best out of the three being compared), and this information is largely drawn from the 2026 paper because it is the most recent one. Variant calling accuracies are presented as fractions of which metrics were improved over BWA-MEM: FN and FP SNPs and FN and FP indels. I did it this way because minimap2's paper presents the comparison as percentages and per-million-bases rates, while minibwa's paper reports what appear to be raw counts. 
+
+| Tool/quality                          | BWA-MEM2   | minibwa      | minimap2             |
+|---------------------------------------|------------|--------------|----------------------|
+| Speed (vs BWA-MEM)*                   | 1.4-2.07x  | 4x           | 3-4x                 |
+| Memory usage                          | ~20 GB     | <10 GB       | <14 GB               |
+| Mapping accuracy                      | 3**        | 2            | 1                    |
+| Variant calling accuracy (vs BWA-MEM) | Same       | 3/4 improved | 3/4 improved         |
+| Output                                | SAM        | SAM          | SAM (with `-a` flag) |
+
+\*Across one CPU thread for BWA-MEM2 ([README](https://github.com/bwa-mem2/bwa-mem2#performance)) and across 32 CPU threads for minibwa (Li and Homer, 2026). Thread count is not specified for minimap2 (Li, 2018).
+
+\*\*Based on the assumption that BWA-MEM2 outputs the same accuracy as BWA-MEM.
+
+Perhaps predictably, **minibwa** is the winner for me. It's light, fast, and does pretty much everything I need it to for this step. It's also new, and I like to think that because I'm not trying to compete with anyone with my pipeline or use it in a real-world situation where the results matter to more people than just me, I'm in a position where I can freely try new things without worrying about dire consequences.
+
+**Tool used in this step: minibwa**
+
+## Marking duplicates
+
+## Base Quality Score Recalibration
+
+## Hybrid selection metrics

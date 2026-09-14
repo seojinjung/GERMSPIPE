@@ -1,6 +1,5 @@
 # Choosing which data to use
 
-## Benchmarks
 Before anything else, I need data to analyze. I haven't gotten my exome sequenced yet (*yet* ...), so I will have to make do with publicly available datasets, plus references. Since I'm building this pipeline from the ground up, I want to make sure it actually works, and the way to do that is to use benchmarks. Early on, I read a paper titled "Benchmarking of variant calling software for whole-exome sequencing using gold standard datasets" by Wong *et al.* (2025). It's a fairly recent paper that's highly relevant to what I'm trying to do and lists the datasets the authors used, so I figured it to be a pretty good guideline for choosing my own datasets. This team used benchmark sets by [Genome in a Bottle](https://www.nist.gov/programs-projects/genome-bottle), which I was thinking about using anyway since GIAB is a reputable source of benchmark and reference datasets. 
 
 That said, Wong et al. don't seem to explicitly mention where they got their GRCh38 reference genome, which fudges things a little because there are a few different places where you can get the FASTA for the genome. In the end, I decided to get my FASTA and associated files straight from GIAB itself, through the links provided on their homepage. 
@@ -52,3 +51,8 @@ The table below lists the files I'm using for this project.
 (By the way, if these file extensions are unfamiliar to you, check out [this Markdown](./file_formats.md) for my attempt at explaining the various file formats involved in the pipeline.)
 
 My plan is to start with HG003, as it appears to be the smallest dataset of the three. Then, to verify that my pipeline generalizes across multiple samples, I will add HG002 and HG001. 
+
+## Generating the sequence dictionary
+This should be enough to get started, but we're missing one thing: the sequence dictionary. Technically, the index and dictionary files for the reference genome should both be generated in order to ensure they all match each other, but I trust the folks at GIAB to provide the correct index files for the GRCh38 genome. (Though, I will make my own index file(s) if I end up having to.) Therefore, all I should have to make myself is the dictionary file. There are two main tools used to accomplish this task: **SAMtools `dict`** and **Picard `CreateSequenceDictionary`.** GATK uses Picard, which makes sense because [Picard was also created by the Broad Institute](https://broadinstitute.github.io/picard/). SAMtools (Danecek *et. al.*, 2021) is a bit more established, having been around for 17 years as of 2026. Both toolkits contain a wide variety of commands and are maintained very well (both GitHub repos were updated within the last two months as of this writing), so I don't think you can go wrong with either. However, for the purposes of my project, I'll go with `CreateSequenceDictionary` in order to keep my pipeline more or less comparable with the Broad's without being the exact same pipeline. I suspect I'll need both SAMtools and Picard for certain downstream steps anyway, so I'm not really limiting myself here.
+
+![Preparation of reference genome triad](./img/ref_genome_prep.svg)

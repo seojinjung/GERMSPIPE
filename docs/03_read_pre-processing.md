@@ -1,7 +1,7 @@
-# Data pre-processing: Getting the reads ready
+# Pre-processing: Getting the reads ready
 File format: FASTQ (raw) --> FASTQ (improved)
 
-In this phase, we will send the sample data through some pre-processing steps to get them ready for analysis. Most pre-processing tools are multifunctional and are able to perform adapter trimming, quality trimming, and read filtering, which I think is great for keeping things simple. As a reminder, here are what those steps are meant to accomplish:
+In this phase, I will send the sample data through some pre-processing steps to get them ready for analysis. Most pre-processing tools are multifunctional and are able to perform adapter trimming, quality trimming, and read filtering, which I think is great for keeping things simple. As a reminder, here are what those steps are meant to accomplish:
 
 - **adapter trimming**: getting rid of leftover adapters from the sequencing process
 - **quality trimming**: removing low-quality read ends
@@ -17,9 +17,9 @@ I decided to compare **fastp** (Chen 2025) and **Trimmomatic** (Beier *et al.* 2
 - In Trimmomatic's evaluation of compressed output file sizes, it produced smaller compressed files than fastp.
 - In fastp's evaluation of post-filtering file sizes (FASTQ was gzipped before and after pre-processing), it noted that Trimmomatic produced good-quality data but dropped a lot of data. 
 
-I would refer to another research team for a slightly more objective comparison, but I haven't found any up-to-date papers comparing the latest versions of these tools in a human WES context. The thing to do instead would be to perform my own comparison, but because the focus of my project is on variant discovery and not pre-processing tools, I decided to just pick one based on the information I already have access to and move on. But ☝️ it's something to look into another time.
+I would refer to another research team for a slightly more objective comparison, but I haven't found any up-to-date papers comparing the latest versions of these tools in a human WES context. The thing to do instead would be to perform my own comparison, but because the focus of my project is on variant discovery and not pre-processing tools, I decided to just pick one based on the information I already have access to and move on. If you find any interesting papers on this, feel free to let me know. In fact, that goes for any component of the pipeline, because I'm sure there are plenty of papers that slipped under my radar while I was researching. 
 
-In the end, I decided to go with **fastp** because it's modern, user-friendly, and seems faster and lighter than Trimmomatic under the circumstances that are relevant to me. The HTML report also seems pretty cool.
+In the end, I decided to go with **fastp** because it's modern, user-friendly, and seems faster and lighter than Trimmomatic under the circumstances that are relevant to me. The HTML report also seems pretty cool. Furthermore, since fastp can auto-detect common adapter sequences, and the samples I'm using are from standardized datasets, I think it's a fairly safe bet that I won't run into any issues using this feature. In fact, I think it's probably better than running the risk of supplying fastp with the wrong adapters.
 
 **Tool used in this step: fastp**
 
