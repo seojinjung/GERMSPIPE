@@ -404,7 +404,7 @@ The optional fields follow the format `TAG:TYPE:VALUE`, wherein `TAG` is a two-c
 Okay, I think that's everything I want to cover with SAM format. That sure was a lot. Thanks for hanging in there.
 
 ### Sequence dictionary (DICT)
-**Extension**: `.dict` (appended to the end of a FASTA filename, replacing the original extension)
+**Extension**: `.dict` (appended to the end of a FASTA filename, **replacing** the original extension)
 
 Now that we understand what SAM files are, let's talk about sequence dictionaries real quick. A sequence dictionary is a file built like a SAM header containing metadata about the reference FASTA genome, including reference sequence/contig names, lengths, and MD5 checksums[^24] [^25]. It is generated from the reference FASTA and used to run compability checks throughout the analysis pipeline. Like the FAI file, it is required by GATK workflows as part of the "prepared reference triad"[^25]. The FASTA is the reference genome, the FAI is the index for finding contigs wtihin the genome, and the DICT is the dictionary containing information about what the contigs actually are.
 

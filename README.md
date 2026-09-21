@@ -27,7 +27,7 @@ There should also be a Dockerfile containing the exact environment I ran the pip
 I think it would be cool if someone else got something out of this, but it's okay if not. Either way, thanks for stopping by. 
 
 # Sources and references
-These are just the major sources. A proper bibliography is provided in `docs/bibliography.md`.
+These are just the major sources. A full bibliography is provided in `docs/bibliography.md`.
 - [Broad Institute GATK Best Practices](https://gatk.broadinstitute.org/hc/en-us/sections/360007226651-Best-Practices-Workflows)
 - [Exome Germline Single Sample Pipeline](https://broadinstitute.github.io/warp/docs/Pipelines/Exome_Germline_Single_Sample_Pipeline/README)
 - [nf-core/sarek](https://nf-co.re/sarek/3.9.0/)
